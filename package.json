@@ -1,0 +1,26 @@
+{
+  "name": "airtop-recipe-sec",
+  "version": "1.0.0",
+  "description": "Use this code to get started quickly with Airtop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx tsx index.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@airtop/sdk": "^0.1.0",
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "dotenv": "^16.4.5",
+    "node-telegram-bot-api": "^0.66.0",
+    "puppeteer": "23.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.5.4",
+    "ts-node": "10.9.2",
+    "tsx": "^4.19.1",
+    "typescript": "5.6.2"
+  }
+}
