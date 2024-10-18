@@ -56,8 +56,7 @@ async function run() {
 
     const windowInfo = await client.windows.getWindowInfoForPuppeteerPage(createSessionResponse.data, page);
 
-    const extractedContent = await client.windows.promptContent(sessionId, windowInfo.data.windowId, {
-        prompt: `
+    const prompt = `
 You are on the SEC website looking at a search for the latest filings.
 Please extract the company names and their corresponding CIK numbers (which follow the company name in parenthesees) from the search results table.
 Get only the ones where the form type is S-1 and not S-1/A.
@@ -69,7 +68,7 @@ Examples:
 - "S-1   |  Foo Inc \\D\\E (0002468024)" should produce a result with the backslashes in the company name escaped: '{ "companyName": "Foo Inc \\\\D\\\\E, "cik": "0002468024", "formType": "S-1" }'.
 
 Please produce a list of results using the JSON schema below. If you are unable to do so, use the failure field to describe the reason for the failure.
-\`\`\`
+
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
@@ -107,10 +106,11 @@ Please produce a list of results using the JSON schema below. If you are unable 
     }
   ]
 }
-\`\`\`
-`,
-    });
-    
+`;
+
+    const extractedContent = await client.windows.promptContent(sessionId, windowInfo.data.windowId, {
+        prompt: prompt,
+    });    
     let modelResponse;
     try {
       modelResponse = JSON.parse(extractedContent.data.modelResponse);
