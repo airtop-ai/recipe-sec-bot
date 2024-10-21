@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import puppeteer, { Browser, Page } from 'puppeteer';
 import { AirtopClient, AirtopError } from '@airtop/sdk';
 import TelegramBot from 'node-telegram-bot-api';
 
@@ -28,7 +27,6 @@ async function sendTelegramMessage(message: string) {
 
 async function run() {
   let sessionId;
-  let browser: Browser;
   try {
     const createSessionResponse = await client.sessions.create({
       configuration: {
@@ -43,18 +41,15 @@ async function run() {
       throw new Error('Unable to get cdp url');
     }
 
-    const cdpUrl = createSessionResponse.data.cdpWsUrl;
-    browser = await puppeteer.connect({
-      browserWSEndpoint: cdpUrl,
-      headers: {
-        Authorization: `Bearer ${AIRTOP_API_KEY}` || '',
-      },
-    });
-    
-    const page: Page = await browser.newPage();
-    await page.goto('https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=S-1&owner=include&count=80&action=getcurrent');
+    const windowResponse = await client.windows.create( 
+      sessionId, 
+      { url: 'https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=S-1&owner=include&count=80&action=getcurrent' }
+    );
 
-    const windowInfo = await client.windows.getWindowInfoForPuppeteerPage(createSessionResponse.data, page);
+    const windowInfo = await client.windows.getWindowInfo(
+      sessionId,
+      windowResponse.data.windowId
+    );
 
     const prompt = `
 You are on the SEC website looking at a search for the latest filings.
@@ -145,7 +140,6 @@ Please produce a list of results using the JSON schema below. If you are unable 
     throw err;
   } finally {
     // Clean up
-    try { await browser.close(); } catch (err) {}
     if (sessionId) {
       await client.sessions.terminate(sessionId);
     }
