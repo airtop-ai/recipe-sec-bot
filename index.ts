@@ -28,11 +28,7 @@ async function sendTelegramMessage(message: string) {
 async function run() {
   let sessionId;
   try {
-    const createSessionResponse = await client.sessions.create({
-      configuration: {
-        timeoutMinutes: 5,
-      },
-    });
+    const createSessionResponse = await client.sessions.create();
 
     sessionId = createSessionResponse.data.id;
     console.log('Created airtop session', sessionId);
