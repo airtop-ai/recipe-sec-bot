@@ -9,7 +9,7 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN!, { polling: false });
 const TELEGRAM_USER_ID = process.env.TELEGRAM_USER_ID;
 
-const client = new AirtopClient({
+const airtopClient = new AirtopClient({
   apiKey: AIRTOP_API_KEY,
 });
 
@@ -28,7 +28,7 @@ async function sendTelegramMessage(message: string) {
 async function run() {
   let sessionId;
   try {
-    const createSessionResponse = await client.sessions.create();
+    const createSessionResponse = await airtopClient.sessions.create();
 
     sessionId = createSessionResponse.data.id;
     console.log('Created airtop session', sessionId);
@@ -37,12 +37,12 @@ async function run() {
       throw new Error('Unable to get cdp url');
     }
 
-    const windowResponse = await client.windows.create( 
+    const windowResponse = await airtopClient.windows.create( 
       sessionId, 
       { url: 'https://www.sec.gov/cgi-bin/browse-edgar?company=&CIK=&type=S-1&owner=include&count=80&action=getcurrent' }
     );
 
-    const windowInfo = await client.windows.getWindowInfo(
+    const windowInfo = await airtopClient.windows.getWindowInfo(
       sessionId,
       windowResponse.data.windowId
     );
@@ -99,7 +99,7 @@ Please produce a list of results using the JSON schema below. If you are unable 
 }
 `;
 
-    const extractedContent = await client.windows.promptContent(sessionId, windowInfo.data.windowId, {
+    const extractedContent = await airtopClient.windows.promptContent(sessionId, windowInfo.data.windowId, {
         prompt: prompt,
     });    
     let modelResponse;
@@ -137,7 +137,7 @@ Please produce a list of results using the JSON schema below. If you are unable 
   } finally {
     // Clean up
     if (sessionId) {
-      await client.sessions.terminate(sessionId);
+      await airtopClient.sessions.terminate(sessionId);
     }
     console.log('Session deleted');
   }
