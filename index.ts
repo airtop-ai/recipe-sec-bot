@@ -92,7 +92,7 @@ const outputSchema =
 };
 ;
 
-    const extractedContent = await airtopClient.windows.promptContent(sessionId, windowInfo.data.windowId, {
+    const extractedContent = await airtopClient.windows.pageQuery(sessionId, windowInfo.data.windowId, {
         prompt: prompt,
         configuration: {
           outputSchema,
