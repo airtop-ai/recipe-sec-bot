@@ -56,51 +56,47 @@ Company names might contain characters like backslashes, which should always be 
 Examples:
 - "S-1   |  Some Company Inc (0001234567)" should produce a result '{ "companyName": "Some Company Inc", "cik": "0001234567", "formType": "S-1" }'.
 - "S-1/A |  Another Company Inc (0009876543)" should be not be included because the form type is S-1/A.
-- "S-1   |  Foo Inc \\D\\E (0002468024)" should produce a result with the backslashes in the company name escaped: '{ "companyName": "Foo Inc \\\\D\\\\E, "cik": "0002468024", "formType": "S-1" }'.
+- "S-1   |  Foo Inc \\D\\E (0002468024)" should produce a result with the backslashes in the company name escaped: '{ "companyName": "Foo Inc \\\\D\\\\E, "cik": "0002468024", "formType": "S-1" }'.`;
 
-Please produce a list of results using the JSON schema below. If you are unable to do so, use the failure field to describe the reason for the failure.
 
+const outputSchema = 
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "oneOf": [
-    {
-      "properties": {
-        "results": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "companyName": {
-                "type": "string"
-              },
-              "cik": {
-                "type": "string"
-              },
-              "formType": {
-                "type": "string"
-              }
-            },
-            "required": ["companyName", "cik", "formType"]
-          }
-        }
+  $schema: 'http://json-schema.org/draft-07/schema#',
+  type: 'object',
+  properties: {
+    results: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          companyName: {
+            type: 'string',
+          },
+          cik: {
+            type: 'string',
+          },
+          formType: {
+            type: 'string',
+          },
+        },
+        required: ['companyName', 'cik', 'formType'],
+        additionalProperties: false,
       },
-      "required": ["results"]
     },
-    {
-      "properties": {
-        "failure": {
-          "type": "string"
-        }
-      },
-      "required": ["failure"]
-    }
-  ]
-}
-`;
+    failure: {
+      type: 'string',
+      description: 'If you cannot fulfill the request, use this field to report the problem.',
+    },
+  },
+  additionalProperties: false,
+};
+;
 
     const extractedContent = await airtopClient.windows.promptContent(sessionId, windowInfo.data.windowId, {
         prompt: prompt,
+        configuration: {
+          outputSchema,
+        }
     });    
     let modelResponse;
     try {
